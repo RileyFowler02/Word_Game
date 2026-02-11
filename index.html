@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Four Letter Duel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Four Letter Duel</h1>
+
+    <div id="setup">
+        <input type="password" id="secretInput" maxlength="4" placeholder="Enter your secret word" />
+        <button onclick="startGame()">Start Round</button>
+    </div>
+
+    <div id="game" class="hidden">
+        <div class="guess-section">
+            <input type="text" id="guessInput" maxlength="4" placeholder="Opponent's guess" />
+            <button onclick="submitGuess()">Submit</button>
+        </div>
+
+        <div id="history"></div>
+
+        <button class="reset" onclick="resetGame()">New Round</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

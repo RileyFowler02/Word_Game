@@ -1,17 +1,37 @@
 let secretWord = "";
 let gameActive = false;
+let guessCount = 0;
+let validWords = new Set();
+let dictionaryLoaded = false;
+let gameOver = false;
 
-function createTileInputs(containerId, isSecret=false) {
+/* ------------------------------
+   LOAD WORD LIST
+------------------------------ */
+
+fetch("words.txt")
+    .then(response => response.text())
+    .then(text => {
+        const words = text.split("\n")
+            .map(word => word.trim().toUpperCase())
+            .filter(word => /^[A-Z]{4}$/.test(word));
+
+        validWords = new Set(words);
+        dictionaryLoaded = true;
+        console.log(`Loaded ${validWords.size} words.`);
+    });
+
+/* ------------------------------
+   TILE INPUT CREATION
+------------------------------ */
+
+function createTileInputs(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = "";
 
     for (let i = 0; i < 4; i++) {
         const input = document.createElement("input");
         input.maxLength = 1;
-
-        if (isSecret) {
-            input.type = "password";
-        }
 
         input.addEventListener("input", (e) => {
             e.target.value = e.target.value.toUpperCase();
@@ -20,23 +40,50 @@ function createTileInputs(containerId, isSecret=false) {
             }
         });
 
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace") {
+                if (!e.target.value && e.target.previousElementSibling) {
+                    e.target.previousElementSibling.value = "";
+                    e.target.previousElementSibling.focus();
+                }
+            }
+        });
+
         container.appendChild(input);
     }
 }
 
-function getWordFromTiles(containerId) {
+function getWord(containerId) {
     const inputs = document.querySelectorAll(`#${containerId} input`);
     return Array.from(inputs).map(i => i.value).join("");
 }
 
-function startGame() {
-    const word = getWordFromTiles("secretTiles");
+function showMessage(text) {
+    document.getElementById("message").textContent = text;
+}
 
-    if (word.length !== 4) {
-        alert("Enter 4 letters.");
+function clearMessage() {
+    document.getElementById("message").textContent = "";
+}
+
+/* ------------------------------
+   GAME LOGIC
+------------------------------ */
+
+function startGame() {
+    if (!dictionaryLoaded) {
+        showMessage("Dictionary still loading...");
         return;
     }
 
+    const word = getWord("secretTiles");
+
+    if (!validWords.has(word)) {
+        showMessage("Enter a valid word.");
+        return;
+    }
+
+    clearMessage();
     secretWord = word;
     gameActive = true;
 
@@ -45,15 +92,17 @@ function startGame() {
 }
 
 function submitGuess() {
-    if (!gameActive) return;
+    if (!gameActive || gameOver) return;
 
-    const guess = getWordFromTiles("guessTiles");
+    const guess = getWord("guessTiles");
 
-    if (guess.length !== 4) {
-        alert("Enter 4 letters.");
+    if (!validWords.has(guess)) {
+        showMessage("Enter a valid word.");
         return;
     }
 
+    clearMessage();
+    guessCount++;
     let correctCount = 0;
 
     const row = document.createElement("div");
@@ -81,15 +130,34 @@ function submitGuess() {
 
     row.appendChild(tilesDiv);
     row.appendChild(countDiv);
-
     document.getElementById("guessBoard").appendChild(row);
 
-    if (correctCount === 4) {
-        gameActive = false;
-        document.getElementById("winMessage").classList.remove("hidden");
-    }
-
     createTileInputs("guessTiles");
+
+    if (correctCount === 4) {
+        gameOver = true;
+        gameActive = false;
+        showResultScreen();
+    }
+}
+
+function showResultScreen() {
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("resultScreen").classList.remove("hidden");
+
+    document.getElementById("resultTitle").textContent =
+        "They cracked your word.";
+
+    document.getElementById("resultStats").textContent =
+        `You lost in ${guessCount} guesses.`;
+}
+
+function viewGame() {
+    document.getElementById("resultScreen").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+
+    // Hide guess input section
+    document.querySelector(".guess-input").classList.add("hidden");
 }
 
 function resetGame() {
@@ -97,6 +165,6 @@ function resetGame() {
 }
 
 window.onload = function() {
-    createTileInputs("secretTiles", true);
+    createTileInputs("secretTiles");
     createTileInputs("guessTiles");
 };

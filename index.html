@@ -10,14 +10,14 @@
 
     <h1>Four Letter Duel</h1>
 
-    <!-- Secret Setup -->
+    <!-- Setup Screen -->
     <div id="setup">
         <p class="subtitle">Enter your secret word</p>
         <div class="tile-input" id="secretTiles"></div>
         <button onclick="startGame()">Lock Word</button>
     </div>
 
-    <!-- Game Area -->
+    <!-- Game Screen -->
     <div id="game" class="hidden">
         <div id="guessBoard"></div>
 
@@ -25,12 +25,17 @@
             <div class="tile-input" id="guessTiles"></div>
             <button onclick="submitGuess()">Submit Guess</button>
         </div>
-
-        <div id="winMessage" class="hidden win-message">
-            <h2>You cracked it ✨</h2>
-            <button onclick="resetGame()">New Round</button>
-        </div>
     </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden win-screen">
+        <h2 id="resultTitle"></h2>
+        <p id="resultStats"></p>
+        <button onclick="resetGame()">Start New Round</button>
+        <button class="secondary" onclick="viewGame()">View Game</button>
+    </div>
+
+<p id="message" class="message"></p>
 
 </div>
 

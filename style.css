@@ -121,3 +121,28 @@ button:hover {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+.win-screen {
+    margin-top: 20px;
+}
+
+.secondary {
+    background: #eee;
+    color: #333;
+    margin-top: 10px;
+}
+
+.secondary:hover {
+    background: #ddd;
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #d9534f;
+    min-height: 18px;
+}
+
+.win-screen h2 {
+    color: #d9534f;
+}

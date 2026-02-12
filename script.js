@@ -1,79 +1,102 @@
 let secretWord = "";
-let history = [];
+let gameActive = false;
+
+function createTileInputs(containerId, isSecret=false) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    for (let i = 0; i < 4; i++) {
+        const input = document.createElement("input");
+        input.maxLength = 1;
+
+        if (isSecret) {
+            input.type = "password";
+        }
+
+        input.addEventListener("input", (e) => {
+            e.target.value = e.target.value.toUpperCase();
+            if (e.target.value && e.target.nextElementSibling) {
+                e.target.nextElementSibling.focus();
+            }
+        });
+
+        container.appendChild(input);
+    }
+}
+
+function getWordFromTiles(containerId) {
+    const inputs = document.querySelectorAll(`#${containerId} input`);
+    return Array.from(inputs).map(i => i.value).join("");
+}
 
 function startGame() {
-    const input = document.getElementById("secretInput");
-    const word = input.value.toUpperCase();
+    const word = getWordFromTiles("secretTiles");
 
     if (word.length !== 4) {
-        alert("Word must be 4 letters.");
+        alert("Enter 4 letters.");
         return;
     }
 
     secretWord = word;
-    localStorage.setItem("secretWord", secretWord);
-    localStorage.setItem("history", JSON.stringify([]));
+    gameActive = true;
 
     document.getElementById("setup").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 }
 
 function submitGuess() {
-    const guessInput = document.getElementById("guessInput");
-    const guess = guessInput.value.toUpperCase();
+    if (!gameActive) return;
+
+    const guess = getWordFromTiles("guessTiles");
 
     if (guess.length !== 4) {
-        alert("Guess must be 4 letters.");
+        alert("Enter 4 letters.");
         return;
     }
 
-    let revealed = "";
+    let correctCount = 0;
+
+    const row = document.createElement("div");
+    row.className = "guess-row";
+
+    const tilesDiv = document.createElement("div");
+    tilesDiv.className = "tiles";
 
     for (let i = 0; i < 4; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.textContent = guess[i];
+
         if (guess[i] === secretWord[i]) {
-            revealed += guess[i];
-        } else {
-            revealed += "_";
+            tile.classList.add("correct");
+            correctCount++;
         }
+
+        tilesDiv.appendChild(tile);
     }
 
-    const entry = `${guess} (${revealed})`;
-    history.push(entry);
+    const countDiv = document.createElement("div");
+    countDiv.className = "count";
+    countDiv.textContent = `${correctCount} / 4 correct`;
 
-    localStorage.setItem("history", JSON.stringify(history));
-    renderHistory();
+    row.appendChild(tilesDiv);
+    row.appendChild(countDiv);
 
-    guessInput.value = "";
-}
+    document.getElementById("guessBoard").appendChild(row);
 
-function renderHistory() {
-    const historyDiv = document.getElementById("history");
-    historyDiv.innerHTML = "";
+    if (correctCount === 4) {
+        gameActive = false;
+        document.getElementById("winMessage").classList.remove("hidden");
+    }
 
-    history.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "guess-row";
-        row.textContent = item;
-        historyDiv.appendChild(row);
-    });
+    createTileInputs("guessTiles");
 }
 
 function resetGame() {
-    localStorage.clear();
     location.reload();
 }
 
 window.onload = function() {
-    const savedSecret = localStorage.getItem("secretWord");
-    const savedHistory = localStorage.getItem("history");
-
-    if (savedSecret) {
-        secretWord = savedSecret;
-        history = JSON.parse(savedHistory) || [];
-
-        document.getElementById("setup").classList.add("hidden");
-        document.getElementById("game").classList.remove("hidden");
-
-        renderHistory();
-    }
+    createTileInputs("secretTiles", true);
+    createTileInputs("guessTiles");
 };

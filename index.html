@@ -7,23 +7,31 @@
 <body>
 
 <div class="container">
+
     <h1>Four Letter Duel</h1>
 
+    <!-- Secret Setup -->
     <div id="setup">
-        <input type="password" id="secretInput" maxlength="4" placeholder="Enter your secret word" />
-        <button onclick="startGame()">Start Round</button>
+        <p class="subtitle">Enter your secret word</p>
+        <div class="tile-input" id="secretTiles"></div>
+        <button onclick="startGame()">Lock Word</button>
     </div>
 
+    <!-- Game Area -->
     <div id="game" class="hidden">
-        <div class="guess-section">
-            <input type="text" id="guessInput" maxlength="4" placeholder="Opponent's guess" />
-            <button onclick="submitGuess()">Submit</button>
+        <div id="guessBoard"></div>
+
+        <div class="guess-input">
+            <div class="tile-input" id="guessTiles"></div>
+            <button onclick="submitGuess()">Submit Guess</button>
         </div>
 
-        <div id="history"></div>
-
-        <button class="reset" onclick="resetGame()">New Round</button>
+        <div id="winMessage" class="hidden win-message">
+            <h2>You cracked it ✨</h2>
+            <button onclick="resetGame()">New Round</button>
+        </div>
     </div>
+
 </div>
 
 <script src="script.js"></script>
